@@ -26,25 +26,47 @@ class MyAppHome extends StatefulWidget {
 }
 
 class _MyAppHomeState extends State<MyAppHome> {
+  String lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      .toLowerCase()
+      .replaceAll(",", "")
+      .replaceAll(".", "");
   int step = 0;
   int score = 0;
+  int lastTypeAt;
+  void updateLastTypeAt(){
+    this.lastTypeAt = new DateTime.now().millisecondsSinceEpoch;
+  }
+
+
+  void onType(String value){
+    updateLastTypeAt();
+    String trimmedstring = lorem.trimLeft();
+    if(trimmedstring.indexOf(value) != 0){
+      setState(() {
+        step = 2;
+      });
+    }
+     print(value);
+  }
+
   onstartclick(){
     setState(() {
+      updateLastTypeAt();
       step++;
     });
     Timer.periodic(new Duration(seconds:1), (timer) {
+      int now = new DateTime.now().millisecondsSinceEpoch;
+
+      //GAME OVER
+      if(now - lastTypeAt > 4000) step++;
       setState(() {
-        score++;
+        if(step == 1) score++;
       });
     });
   }
   @override
   Widget build(BuildContext context) {
-    String lorem =
-        "      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-            .toLowerCase()
-            .replaceAll(",", "")
-            .replaceAll(".", "");
+
     var shown_widget;
     if (step==0)
       shown_widget = <Widget>[Text("WELCOME TO GAME"),
@@ -78,6 +100,7 @@ class _MyAppHomeState extends State<MyAppHome> {
         padding: const EdgeInsets.only(left: 16, right: 16, top: 32),
         child: TextField(
           autofocus: true,
+          onChanged: onType,
           decoration: InputDecoration(
               border: OutlineInputBorder(),
 
@@ -85,6 +108,10 @@ class _MyAppHomeState extends State<MyAppHome> {
         ),
       ),
     ];
+    else{
+      shown_widget = <Widget>[Text("Game Over, Your score is $score"),
+      ];
+    }
 
     return Scaffold(
       appBar: AppBar(
